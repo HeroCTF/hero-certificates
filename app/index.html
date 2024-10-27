@@ -7,26 +7,24 @@
     <title>HeroCTF Certificates</title>
 </head>
 <body>
-<div>
-    <h1>Enter Your CTFd Token</h1>
+
     <div class="row center">
         <div class="terminal">
             {% if error %}
-                <p style="color: red;">Error: {{ message }}</p>
+                <p style="color: red;">Error: {{ error }}</p>
             {% endif %}
-            <form method="POST" action="{{ url_for('index') }}">
+            <form method="POST" action="/">
                 <span class="green_prefix size_up"> $ </span><label for="api_key">CTFd Access Tokens</label>
                 <br>
                 <br>
                 <span class="green_prefix">&nbsp> </span>
-                <input class="width_90" placeholder="Enter your access tokens" type="text" name="access_key">
+                <input class="width_90" placeholder="Enter your access tokens" type="text" name="token" id="token">
                 <br>
                 <br>
                 <button type="submit" class="submit-btn">Submit</button>
             </form>
         </div>
     </div>
-</div>
 
 </body>
 </html>

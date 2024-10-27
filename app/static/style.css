@@ -11,39 +11,10 @@ body {
     min-height: 100vh;
     font-family: Arial, sans-serif;
     color: #333;
-    background-image: url("static/background.png");
+    background-image: url("/static/background.png");
     background-repeat: no-repeat;
     background-size: cover;
-}
-
-.container {
-    text-align: center;
-    width: 90%;
-    max-width: 400px;
-    background: #ffffff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.container h1 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #333;
-}
-
-.input-group {
-    margin-bottom: 1.5rem;
-}
-
-.input-group input[type="text"] {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    outline: none;
-    transition: border-color 0.3s;
+    background-position: center center;
 }
 
 input, select, input:hover, select:hover {
@@ -124,10 +95,6 @@ button:hover {
 	text-align: center;
 }
 
-.debug {
-	border: 2px solid red;
-}
-
 .center {
 	justify-content: center;
 	align-items: center;
@@ -160,39 +127,7 @@ a:hover, a:active {
 	cursor: pointer;
 }
 
-thead {
-	background-color: rgb(39, 39, 39);
+label {
+    color: white;
+    font-weight: bold;
 }
-
-td {
-	border-color: white;
-	border: 2px solid;
-	padding: 0.3em;
-	text-align: center;
-}
-
-
-
-.typing {
-	width: fit-content;
-	overflow: hidden;
-	border-right: .15em solid #b5e853; 
-	white-space: nowrap;
-	letter-spacing: .15em;
-	animation-delay:15s;
-	animation:
-	typing 2.5s steps(19, end),
-	blink-caret .75s step-end infinite;
-}
-
-/* The typing effect */
-@keyframes typing {
-	from { width: 0 }
-	to { width: 10em }
-}
-
-/* The typewriter cursor effect */
-@keyframes blink-caret {
-	from, to { border-color: transparent }
-	50% { border-color: #b5e853; }
-}  

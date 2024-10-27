@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash
+from flask import Flask, render_template, request, after_this_request, send_file
 import requests
 import os
 
@@ -45,36 +45,41 @@ def generate_certificate(template, username, team, rank, number_of_teams, filena
 
 
 app = Flask(__name__, template_folder='.', static_url_path='/static')
-app.config.update(
-    SECRET_KEY=os.environ.get("SECRET_KEY"),
-    SESSION_COOKIE_SAMESITE='Strict',
-    SESSION_COOKIE_SECURE=True
-)
-
-print(os.environ)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         token = request.form.get('token')
-        response = requests.get(f"https://ctf.heroctf.fr/api/v1/users/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
-        if response.status_code == 200:
-            username = response.json()["data"]["name"]
-            response = requests.get(f"https://ctf.heroctf.fr/api/v1/teams/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
+        if token:
+            response = requests.get(f"https://ctf.heroctf.fr/api/v1/users/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
+            
             if response.status_code == 200:
-                team_name = response.json()["data"]["name"]
-                score = response.json()["data"]["place"]
-                response = requests.get(f"https://ctf.heroctf.fr/api/v1/teams", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
+                username = response.json()["data"]["name"]
+                response = requests.get(f"https://ctf.heroctf.fr/api/v1/teams/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
+                
                 if response.status_code == 200:
-                    max_teams = response.json()["meta"]["pagination"]["total"]
-                    filename = f"certificates/{username}-hero-certif.pdf"
-                    generate_certificate("static/template.png", username, team_name, score, max_teams, filename)
-                    return send_file(filename, as_attachment=True)
+                    team_name = response.json()["data"]["name"]
+                    score = response.json()["data"]["place"]
+                    response = requests.get(f"https://ctf.heroctf.fr/api/v1/teams", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
+                    
+                    if response.status_code == 200:
+                        max_teams = response.json()["meta"]["pagination"]["total"]
+                        
+                        @after_this_request
+                        def remove_file(response):
+                            try:
+                                os.remove(filename)
+                            except:
+                                pass
+                            return response
+                        
+                        filename = f"certificates/{username}-hero-certif.pdf"
+                        generate_certificate("resources/template.png", username, team_name, score, max_teams, filename)
+                        return send_file(filename, as_attachment=True)
         
-        flash("Could not authenticate to the CTFd instance.", "danger")
-        return redirect(url_for('index'))
+        return render_template('index.html', error="Could not authenticate to the CTFd instance.")
     else:
         return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get('LISTEN_PORT', '80')))
+    app.run(host="0.0.0.0", port=int(os.environ.get('LISTEN_PORT', '80')), debug=True)
