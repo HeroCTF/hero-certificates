@@ -1,8 +1,11 @@
+import os
+import re
+
 from PIL import Image, ImageDraw, ImageFont
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, after_this_request, send_file
 import requests
-import os
+
 
 def generate_certificate(template, username, team, rank, number_of_teams, filename):
     img = Image.open(template).convert("RGB")
