@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, after_this_request, send_file
 import requests
 
-API_URL = os.environ.get('API_URL', "https://ctf.heroctf.fr/api/v1/")
+API_URL = os.environ.get('API_URL', "https://ctf.heroctf.fr/api/v1")
 
 def generate_certificate(template, username, team, rank, number_of_teams, filename):
     img = Image.open(template).convert("RGB")
