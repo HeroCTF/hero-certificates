@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
+from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, after_this_request, send_file
 import requests
 import os
@@ -52,7 +53,11 @@ def index():
         token = request.form.get('token')
         if not token:
             return render_template('index.html', error="Please provide a CTFd token.")
-        
+
+        pattern = r'^ctfd_[a-zA-Z0-9]+$'
+        if not re.match(pattern, token):
+            return render_template('index.html', error=f"The CTFd token should match: {pattern}")
+
         response = requests.get(f"https://ctf.heroctf.fr/api/v1/users/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
         
         if response.status_code != 200:
@@ -80,11 +85,10 @@ def index():
             except:
                 pass
             return response
-        
-        filename = f"certificates/{username}-hero-certif.pdf"
+
+        filename = f"certificates/{secure_filename(username)}-hero-certif.pdf"
         generate_certificate("resources/template.png", username, team_name, score, max_teams, filename)
         return send_file(filename, as_attachment=True)
-
     else:
         return render_template('index.html')
 
