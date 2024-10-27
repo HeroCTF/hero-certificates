@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, after_this_request, send_file
 import requests
 
+API_URL = os.environ.get('API_URL', "https://ctf.heroctf.fr/api/v1/")
 
 def generate_certificate(template, username, team, rank, number_of_teams, filename):
     img = Image.open(template).convert("RGB")
@@ -50,6 +51,9 @@ def generate_certificate(template, username, team, rank, number_of_teams, filena
 
 app = Flask(__name__, template_folder='.', static_url_path='/static')
 
+def err(error="Could not authenticate to the CTFd instance."):
+    return render_template('index.html', error=error)
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -59,25 +63,25 @@ def index():
 
         pattern = r'^ctfd_[a-zA-Z0-9]+$'
         if not re.match(pattern, token):
-            return render_template('index.html', error=f"The CTFd token should match: {pattern}")
+            return err(f"The CTFd token should match: {pattern}")
 
-        response = requests.get(f"https://ctf.heroctf.fr/api/v1/users/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
+        response = requests.get(f"{API_URL}/users/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
         
-        if response.status_code != 200:
-            return render_template('index.html', error="Could not authenticate to the CTFd instance.")
+        if not response.ok:
+            return err()
         
         username = response.json()["data"]["name"]
-        response = requests.get(f"https://ctf.heroctf.fr/api/v1/teams/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
+        response = requests.get(f"{API_URL}/teams/me", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
         
-        if response.status_code != 200:
-            return render_template('index.html', error="Could not authenticate to the CTFd instance.")
+        if not response.ok:
+            return err()
         
         team_name = response.json()["data"]["name"]
         score = response.json()["data"]["place"]
-        response = requests.get(f"https://ctf.heroctf.fr/api/v1/teams", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
+        response = requests.get(f"{API_URL}/teams", headers={"Authorization": f"Token {token}", "Content-Type": "application/json"})
         
-        if response.status_code != 200:
-            return render_template('index.html', error="Could not authenticate to the CTFd instance.")
+        if not response.ok:
+            return err()
         
         max_teams = response.json()["meta"]["pagination"]["total"]
         
